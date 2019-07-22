@@ -9,7 +9,18 @@
 import csharp
 import definitions
 
+external predicate selectedSourceFile(string file);
+
+cached
+string getSAName(File f) {
+	result = f.getAbsolutePath().replaceAll(":", "_").regexpReplaceAll("^/", "")
+}
+predicate goodLocation(string s) {
+  selectedSourceFile(getSAName(any(File f | f.getAbsolutePath() = s)))
+}
+
 from Use use, Declaration definition, string type
 where
   defs(use,definition, type)
+  and use.hasLocationInfo(any(string s | goodLocation(s)),_,_,_,_)
 select use, definition, type
